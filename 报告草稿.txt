@@ -1,2 +1,237 @@
-C:\Program Files\Git\bin
-C:\Program Files\Git\mingw64\libexec\git-core
+A=mean(magic04)% 均值
+
+y=magic04-ones*A
+cov=y'*y*(1/19025)
+
+sum=0
+for i=1:19020
+A=Z(i,:)'*Z(i,:)
+Sum1=sum1+A*(1/19020)
+end
+
+
+A  B
+b=cell2mat(B);
+for i=1:4
+cosa(i)=sum(A.*b(i,:))/(norm(A)*norm(b(i,:)));
+end
+maxa=max(cosa); 
+Maxa=
+ 0.9088
+ 
+  X=var(magic04)
+  
+ % the linear kernel ：
+for m=1:4
+for n=1:4
+k(m,n)=iris(:,m)'*iris(:,n)
+end
+end
+
+Y=eye(4,4)-eye(4,4)/4
+
+C=Y*k*Y
+
+K2=zscore(Y) 
+
+
+X1=iris(:,1)
+X2=iris(:,2)
+X3=iris(:,3)
+x4=iris(:,4)
+function count = sta_submatrix1(a,b)  
+count = 0;  
+for i = 1:length(a)-length(b)+1  
+    c = a(i:i+length(b)-1);  
+    e = double(c==b);  
+    if(sum(e) == length(b))  
+        count = count + 1;  
+    end  
+end  
+end  
+
+%?????????????????????????????????????????
+DBSCAN  
+clear all;  
+clc;  
+  
+%% 导入数据集  
+% data = load('testData.txt');  
+data = load('testData_2.txt');  
+  
+% 定义参数Eps和MinPts  
+MinPts = 5;  
+Eps = epsilon(data, MinPts);  
+  
+[m,n] = size(data);%得到数据的大小  
+  
+x = [(1:m)' data];  
+[m,n] = size(x);%重新计算数据集的大小  
+types = zeros(1,m);%用于区分核心点1，边界点0和噪音点-1  
+dealed = zeros(m,1);%用于判断该点是否处理过,0表示未处理过  
+dis = calDistance(x(:,2:n));  
+number = 1;%用于标记类  
+  
+%% 对每一个点进行处理  
+for i = 1:m  
+    %找到未处理的点  
+    if dealed(i) == 0  
+        xTemp = x(i,:);  
+        D = dis(i,:);%取得第i个点到其他所有点的距离  
+        ind = find(D<=Eps);%找到半径Eps内的所有点  
+          
+        %% 区分点的类型  
+          
+        %边界点  
+        if length(ind) > 1 && length(ind) < MinPts+1  
+            types(i) = 0;  
+            class(i) = 0;  
+        end  
+        %噪音点  
+        if length(ind) == 1  
+            types(i) = -1;  
+            class(i) = -1;  
+            dealed(i) = 1;  
+        end  
+        %核心点 
+        if length(ind) >= MinPts+1  
+            types(xTemp(1,1)) = 1;  
+            class(ind) = number;  
+              
+            % 判断核心点是否密度可达  
+            while ~isempty(ind)  
+                yTemp = x(ind(1),:);  
+                dealed(ind(1)) = 1;  
+                ind(1) = [];  
+                D = dis(yTemp(1,1),:); 
+                ind_1 = find(D<=Eps);  
+                  
+                if length(ind_1)>1%处理非噪音点  
+                    class(ind_1) = number;  
+                    if length(ind_1) >= MinPts+1  
+                        types(yTemp(1,1)) = 1;  
+                    else  
+                        types(yTemp(1,1)) = 0;  
+                    end  
+                 
+                    for j=1:length(ind_1)  
+                       if dealed(ind_1(j)) == 0  
+                          dealed(ind_1(j)) = 1;  
+                          ind=[ind ind_1(j)];     
+                          class(ind_1(j))=number;  
+                       end                      
+                   end  
+                end  
+            end  
+            number = number + 1;  
+        end  
+    end  
+end 
+% 最后处理所有未分类的点为噪音点  
+ind_2 = find(class==0);  
+class(ind_2) = -1;  
+types(ind_2) = -1;  
+  
+%% 画出最终的聚类图  
+hold on  
+for i = 1:m  
+    if class(i) == -1  
+        plot(data(i,1),data(i,2),'.r');  
+    elseif class(i) == 1  
+        if types(i) == 1  
+            plot(data(i,1),data(i,2),'+b');  
+        else  
+            plot(data(i,1),data(i,2),'.b');  
+        end  
+    elseif class(i) == 2  
+        if types(i) == 1  
+            plot(data(i,1),data(i,2),'+g');  
+        else  
+            plot(data(i,1),data(i,2),'.g');  
+        end  
+    elseif class(i) == 3  
+        if types(i) == 1  
+            plot(data(i,1),data(i,2),'+c');  
+        else  
+            plot(data(i,1),data(i,2),'.c');  
+        end  
+    else  
+        if types(i) == 1  
+            plot(data(i,1),data(i,2),'+k');  
+        else  
+            plot(data(i,1),data(i,2),'.k');  
+        end  
+    end  
+end  
+hold off  
+%% 计算矩阵中点与点之间的距离  
+function [ dis ] = calDistance( x )  
+    [m,n] = size(x);  
+    dis = zeros(m,m);  
+      
+    for i = 1:m  
+        for j = i:m  
+        
+            tmp =0;  
+            for k = 1:n  
+                tmp = tmp+(x(i,k)-x(j,k)).^2;  
+            end  
+            dis(i,j) = sqrt(tmp);  
+            dis(j,i) = dis(i,j);  
+        end  
+    end  
+end  
+function [Eps]=epsilon(x,k)  
+  
+
+  
+[m,n]=size(x);  
+  
+Eps=((prod(max(x)-min(x))*k*gamma(.5*n+1))/(m*sqrt(pi.^n))).^(1/n);  
+
+%???????????????????????????/
+<span style="font-family: Arial, Helvetica, sans-serif; background-color: rgb(255, 255, 255);">  
+</span>  
+<span style="font-family: Arial, Helvetica, sans-serif; background-color: rgb(255, 255, 255);">from sklearn.datasets import  load_iris</span> 
+<iris=load_iris()
+print iris.feature_names     
+print iris.target_names    
+
+import numpy as np  
+from sklearn.datasets import load_iris  
+from sklearn import tree  
+iris=load_iris()  
+  
+  
+test_idx=[0,50,100]  
+  
+#training data  
+train_target=np.delete(iris.target,test_idx)  
+train_data=np.delete(iris.data,test_idx,axis=0)  
+  
+#testing data  
+  
+test_target=iris.target[test_idx]  
+test_data=iris.data[test_idx]  
+  
+clf=tree.DecisionTreeClassifier()  
+clf.fit(train_data,train_target)  
+  
+  
+print test_target    #ground truth label of test data  
+print clf.predict(test_data)  # the prediction of decision tree  
+#viz code  
+from sklearn.externals.six import StringIO  
+import pydot  
+dot_data=StringIO()  
+tree.export_graphviz(clf, out_file=dot_data,   
+                         feature_names=iris.feature_names,    
+                         class_names=iris.target_names,    
+                         filled=True, rounded=True,    
+                         impurity=False)  
+graph = pydot.graph_from_dot_data(dot_data.getvalue())  
+graph[0].write_pdf("iris.pdf")  
+
+
+
+
